@@ -21,8 +21,8 @@ Group {
 
                     newCSV += "\(dateString),\(row[3]),\(row[0]) Payment\n"
                     newCSV += "\(dateString),-\(row[8]),\(row[0]) Fees\n"
-                    if Float(row[5]) > 0 {
-                        newCSV += "\(dateString),-\(row[5]),\(row[0]) Refund\n"
+                    if let refund = Float(row[4]) where refund > 0 {
+                        newCSV += "\(dateString),-\(refund),\(row[0]) Refund\n"
                     }
                 }
             }
