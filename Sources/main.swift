@@ -2,9 +2,10 @@ import Foundation
 import Commander
 
 Group {
-    $0.command("convert", description: "Convert Stripe CSV to work with FreeAgent") { (csv: String, destination: String) in
+    
+    func convertCSV(source: String, destination: String) {
         do {
-            let csvString = try String(contentsOfFile: csv)
+            let csvString = try String(contentsOfFile: source)
             var rows = csvString.componentsSeparatedByString("\n").map { $0.componentsSeparatedByString(",") }
             rows.removeAtIndex(0)
             
@@ -24,12 +25,48 @@ Group {
                 try newCSV.writeToFile(destination, atomically: true, encoding: NSUTF8StringEncoding)
             } catch {
                 print("❌ Could not save CSV")
+                return
             }
             
-            print("✅ Converted")
+            print("✅ Converted \(source)\n")
             
         } catch {
-            print("❌ Could not open CSV")
+            print("❌ Could not open CSV \(source)\n")
+            return
         }
     }
+    
+    $0.command("convert", description: "Convert Stripe CSV to work with FreeAgent") { (csv: String, destination: String) in
+        convertCSV(csv, destination: destination)
+    }
+    
+    $0.command("directory", description: "Convert entire directory of CSVs to work with Freeagent") { (dir: String) in
+        
+        do {
+            let fileManager = NSFileManager.defaultManager()
+            let csvs = try fileManager.contentsOfDirectoryAtPath(dir).filter { NSURL(fileURLWithPath: $0).pathExtension == "csv" }
+            let dest = (dir as NSString).stringByAppendingPathComponent("/converted")
+            if !fileManager.fileExistsAtPath(dest) {
+                do {
+                    try fileManager.createDirectoryAtPath(dest, withIntermediateDirectories: false, attributes: nil)
+                } catch {
+                    print("❌ Could not create 'converted' directory")
+                    return
+                }
+            }
+            
+            for csv in csvs {
+                let destination = (dest as NSString).stringByAppendingPathComponent(csv)
+                let source = (dir as NSString).stringByAppendingPathComponent(csv)
+                convertCSV(source, destination: destination)
+            }
+            
+        } catch {
+            print("❌ Could not open directory")
+            return
+        }
+        
+    }
+    
 }.run()
+

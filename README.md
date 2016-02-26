@@ -8,4 +8,5 @@ Convert Stripe payment CSVs into a format FreeAgent can read.
 
 ## Usage
 
-`./build/debug/stripe convert ~/path/to/source.csv ~/path/to/dest.csv`
+    ./build/debug/stripe convert ~/path/to/source.csv ~/path/to/dest.csv
+    ./build/debug/stripe directory ~/path/to/directory
